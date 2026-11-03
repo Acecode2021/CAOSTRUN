@@ -1,0 +1,12 @@
+{
+  "name": "coast-run",
+  "version": "1.0.0",
+  "private": true,
+  "description": "A self-contained sunset arcade racer.",
+  "scripts": {
+    "build": "python3 build.py",
+    "start": "python3 -m http.server 3000 --bind 0.0.0.0",
+    "test": "node tests/smoke.mjs"
+  },
+  "devDependencies": { "playwright": "^1.56.0" }
+}

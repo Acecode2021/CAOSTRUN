@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="theme-color" content="#121827">
+<meta name="description" content="Coast Run — a sunset-soaked arcade racer. Dodge traffic, chain near misses, and chase the last light.">
+<title>Coast Run — Chase the Last Light</title>
+<style>/*__STYLES__*/</style>
+</head>
+<body>
+<main id="game" aria-label="Coast Run arcade racing game">
+  <canvas id="scene" aria-label="Sunset coastal highway. Use arrow keys or A and D to steer, Space to boost, and Down to brake."></canvas>
+  <div class="vignette" aria-hidden="true"></div>
+  <div class="grain" aria-hidden="true"></div>
+
+  <header class="topbar">
+    <a class="brand" href="#" id="brand" aria-label="Coast Run home">
+      <span class="brand-mark" aria-hidden="true"><i></i><i></i><i></i></span>
+      <span>COAST<span class="brand-thin">RUN</span><small>PACIFIC HIGHWAY · 1986</small></span>
+    </a>
+    <div class="top-actions">
+      <button class="icon-btn" id="soundBtn" aria-label="Mute sound" title="Sound (M)">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path class="sound-wave" d="M16 8c1.5 1 1.5 7 0 8M19 5c3.5 2.5 3.5 11.5 0 14"/></svg>
+      </button>
+      <button class="icon-btn" id="pauseBtn" aria-label="Pause game" title="Pause (P / Esc)" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14M16 5v14"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <section id="hud" class="hud" aria-label="Race statistics" hidden>
+    <div class="hud-score">
+      <span class="eyebrow">SCORE</span>
+      <strong id="score">000000</strong>
+      <span class="best-line">BEST <b id="hudBest">0</b></span>
+    </div>
+    <div class="hud-center">
+      <div id="combo" class="combo" hidden><span id="comboText">×2</span> NEAR-MISS CHAIN</div>
+      <div class="distance"><span id="distance">0.00</span> <small>KM</small></div>
+    </div>
+    <div class="hud-speed">
+      <strong id="speed">160</strong><span>KM/H</span>
+      <div id="boostLabel" class="boost-label">CRUISING</div>
+    </div>
+    <div class="hud-bottom">
+      <div class="integrity" aria-label="Bodywork integrity">
+        <span class="eyebrow">BODYWORK</span>
+        <div id="hearts" class="hearts"><i></i><i></i><i></i></div>
+      </div>
+      <div class="nitro">
+        <div class="nitro-label"><span>NITRO</span><kbd>SPACE</kbd></div>
+        <div class="nitro-track"><div id="nitroFill"></div></div>
+      </div>
+      <div class="desktop-hint"><kbd>←</kbd><kbd>→</kbd> STEER <span>·</span> <kbd>↓</kbd> BRAKE</div>
+    </div>
+  </section>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <div id="countdown" class="countdown" aria-hidden="true"></div>
+
+  <section id="menu" class="overlay menu-overlay">
+    <div class="menu-copy">
+      <div class="kicker"><span class="live-dot"></span> ENDLESS ARCADE RACER</div>
+      <h1>COAST<br><span>RUN</span><em>’86</em></h1>
+      <p class="tagline">Chase the last light.</p>
+      <p class="intro">Dodge traffic. Thread the needle. Keep the needle down.<br class="wide-only"> The coast is yours until the bodywork gives out.</p>
+      <div class="menu-cta">
+        <button id="startBtn" class="btn btn-primary">IGNITE ENGINE <span aria-hidden="true">↗</span></button>
+        <span class="enter-hint">or press <kbd>ENTER</kbd></span>
+      </div>
+      <div class="driver-field">
+        <label for="driverName">DRIVER</label>
+        <input id="driverName" maxlength="10" value="YOU" autocomplete="off" spellcheck="false" aria-label="Driver name for local high scores">
+        <span>LOCAL RECORDS ONLY</span>
+      </div>
+      <div class="controls-guide">
+        <div><span class="key-group"><kbd>←</kbd><kbd>→</kbd></span><span>STEER</span></div>
+        <div><kbd>SPACE</kbd><span>BOOST</span></div>
+        <div><kbd>↓</kbd><span>BRAKE</span></div>
+        <div><kbd>P</kbd><span>PAUSE</span></div>
+      </div>
+      <p class="touch-guide">Hold the arrows to steer. Drag the road, too. Hit Nitro to fly.</p>
+      <button id="mobileScoresBtn" class="link-btn" type="button">LOCAL LEGENDS <span aria-hidden="true">↗</span></button>
+    </div>
+    <aside class="leaderboard-card">
+      <div class="lb-head"><span class="eyebrow">LOCAL LEGENDS</span><span class="trophy" aria-hidden="true">♛</span></div>
+      <h2>The high-score club.</h2>
+      <table class="scores-table" aria-label="Local high scores">
+        <thead><tr><th>#</th><th>DRIVER</th><th>SCORE</th></tr></thead>
+        <tbody id="menuScores"></tbody>
+      </table>
+      <div class="lb-foot"><span class="live-dot"></span> SAVED ON THIS DEVICE</div>
+    </aside>
+    <footer class="menu-footer"><span>THREE HITS. ONE SUNSET. NO FINISH LINE. ACE TECH</span><span>BEST WITH SOUND ON <span aria-hidden="true">↗</span></span></footer>
+  </section>
+
+  <section id="scoresOverlay" class="overlay modal-overlay" hidden aria-labelledby="scoresTitle">
+    <div class="modal-card scores-card">
+      <span class="kicker">SAVED ON THIS DEVICE</span>
+      <h2 id="scoresTitle">Local legends.</h2>
+      <table class="scores-table" aria-label="Local high scores">
+        <thead><tr><th>#</th><th>DRIVER</th><th>SCORE</th></tr></thead>
+        <tbody id="modalScores"></tbody>
+      </table>
+      <button id="closeScoresBtn" class="btn btn-primary">BACK TO THE COAST <span aria-hidden="true">↗</span></button>
+    </div>
+  </section>
+
+  <section id="pauseOverlay" class="overlay modal-overlay" hidden aria-labelledby="pauseTitle">
+    <div class="modal-card">
+      <span class="kicker">ENGINE IDLING</span>
+      <h2 id="pauseTitle">Take a breather.</h2>
+      <p>The sunset can wait.</p>
+      <button id="resumeBtn" class="btn btn-primary">BACK TO THE COAST <span aria-hidden="true">↗</span></button>
+      <div class="modal-actions"><button id="pauseRestartBtn" class="btn btn-ghost">RESTART</button><button id="pauseMenuBtn" class="btn btn-ghost">GARAGE</button></div>
+      <small><kbd>P</kbd> or <kbd>ESC</kbd> to resume</small>
+    </div>
+  </section>
+
+  <section id="overOverlay" class="overlay modal-overlay" hidden aria-labelledby="overTitle">
+    <div class="modal-card over-card">
+      <span class="kicker">BODYWORK TOTALED</span>
+      <h2 id="overTitle">What a ride.</h2>
+      <div id="newBest" class="new-best" hidden>★ NEW PERSONAL BEST</div>
+      <div class="final-score"><span class="eyebrow">FINAL SCORE</span><strong id="finalScore">0</strong></div>
+      <div class="final-stats">
+        <div><strong id="finalDistance">0.00</strong><span>KM DRIVEN</span></div>
+        <div><strong id="finalNear">0</strong><span>NEAR MISSES</span></div>
+        <div><strong id="finalSpeed">0</strong><span>TOP KM/H</span></div>
+      </div>
+      <button id="restartBtn" class="btn btn-primary">ONE MORE RUN <span aria-hidden="true">↗</span></button>
+      <div class="modal-actions"><button id="overMenuBtn" class="btn btn-ghost">GARAGE</button><span class="enter-hint"><kbd>R</kbd> INSTANT RESTART</span></div>
+      <p class="saved-note" id="savedNote">Your run is saved to the local high-score club.</p>
+    </div>
+  </section>
+
+  <div id="touchControls" class="touch-controls" hidden>
+    <div class="steer-pad">
+      <button id="leftBtn" class="touch-btn steer" aria-label="Steer left"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 5l-7 7 7 7"/></svg></button>
+      <button id="rightBtn" class="touch-btn steer" aria-label="Steer right"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg></button>
+    </div>
+    <div class="pedal-pad">
+      <button id="brakeBtn" class="touch-btn brake" aria-label="Brake">BRAKE</button>
+      <button id="boostBtn" class="touch-btn boost" aria-label="Hold for nitro boost"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13 2L5 14h6l-1 8 9-13h-6l0-7z"/></svg><span>NITRO</span></button>
+    </div>
+  </div>
+  <div id="rotateHint" class="rotate-hint" hidden>↻ Landscape gives you more road.</div>
+</main>
+<script>/*__SCRIPT__*/</script>
+</body>
+</html>

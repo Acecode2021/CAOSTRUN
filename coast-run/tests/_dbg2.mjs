@@ -1,0 +1,11 @@
+import { chromium } from 'playwright';
+const b=await chromium.launch({headless:true,args:['--no-sandbox']});
+const p=await (await b.newContext({viewport:{width:1440,height:900}})).newPage();
+await p.goto('http://127.0.0.1:3000/tests/debug.html?test=1');
+await p.waitForFunction(()=>window.__coastTest);
+await p.click('#startBtn');
+await p.waitForTimeout(2500);
+await p.evaluate(()=>window.__coastTest.pause());
+await p.waitForTimeout(150);
+await p.screenshot({path:'/tmp/dbg2.png'});
+await b.close();
